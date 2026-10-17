@@ -169,6 +169,10 @@ body {
   text-align: center;
 }
 
+.result__state[hidden] {
+  display: none;
+}
+
 .result__status {
   font-size: 0.95rem;
   color: var(--color-text-muted);

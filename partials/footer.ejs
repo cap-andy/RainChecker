@@ -1,0 +1,79 @@
+    <footer class="app__footer">
+      <p>Forecast data from <a href="https://openweathermap.org/" target="_blank" rel="noopener noreferrer">OpenWeatherMap</a></p>
+    </footer>
+  </main>
+
+  <script>
+    const form = document.getElementById('weatherForm');
+    const postcodeInput = document.getElementById('postcodeInput');
+
+    const result = document.getElementById('result');
+    const loading = document.getElementById('loading');
+    const error = document.getElementById('error');
+    const forecast = document.getElementById('forecast');
+    const errorMessage = document.getElementById('errorMessage');
+
+    const resultCity = document.getElementById('resultCity');
+    const iconRain = document.getElementById('iconRain');
+    const iconClear = document.getElementById('iconClear');
+    const forecastVerdict = document.getElementById('forecastVerdict');
+    const probabilityValue = document.getElementById('probabilityValue');
+    const tempHigh = document.getElementById('tempHigh');
+    const tempLow = document.getElementById('tempLow');
+    const windSpeed = document.getElementById('windSpeed');
+
+    const RAIN_THRESHOLD = 40;
+
+    form.addEventListener('submit', async (event) => {
+      event.preventDefault();
+
+      const postcode = postcodeInput.value.trim();
+      if (!postcode) return;
+
+      showState('loading');
+
+      try {
+        const response = await fetch(`/api/forecast?postcode=${encodeURIComponent(postcode)}`);
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.error || "We couldn't reach the forecast service. Try again in a moment.");
+        }
+
+        renderForecast(data);
+        showState('forecast');
+      } catch (err) {
+        errorMessage.textContent = err.message;
+        showState('error');
+      }
+    });
+
+    function showState(state) {
+      result.hidden = false;
+      loading.hidden = state !== 'loading';
+      error.hidden = state !== 'error';
+      forecast.hidden = state !== 'forecast';
+    }
+
+    function renderForecast(data) {
+      const willRain = data.probability >= RAIN_THRESHOLD;
+
+      resultCity.textContent = data.city;
+      probabilityValue.textContent = data.probability;
+      tempHigh.textContent = `${data.tempHigh}°C`;
+      tempLow.textContent = `${data.tempLow}°C`;
+      windSpeed.textContent = `${data.wind} m/s`;
+
+      forecastVerdict.textContent = willRain
+        ? 'Yes, pack an umbrella.'
+        : "No, you shouldn't need an umbrella.";
+
+      iconRain.hidden = !willRain;
+      iconClear.hidden = willRain;
+
+      result.classList.remove('result--rain', 'result--clear');
+      result.classList.add(willRain ? 'result--rain' : 'result--clear');
+    }
+  </script>
+</body>
+</html>

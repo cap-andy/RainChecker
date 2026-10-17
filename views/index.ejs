@@ -1,0 +1,123 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Will it rain tomorrow?</title>
+  <meta name="description" content="Check whether it will rain tomorrow in any city, powered by OpenWeatherMap." />
+
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Space+Grotesk:wght@500;600;700&display=swap" rel="stylesheet" />
+
+  <link rel="stylesheet" href="styles/main.css" />
+</head>
+<body>
+
+  <main class="app">
+    <header class="app__header">
+      <h1 class="app__title">Will it rain tomorrow?</h1>
+      <p class="app__subtitle">Enter your postcode to see tomorrow's forecast.</p>
+    </header>
+
+    <!--
+      JS hooks:
+      - #weatherForm  -> listen for "submit", read #postcodeInput.value
+                         (country is fixed to AU — append ",AU" server-side for the geocoding call)
+      - #result       -> has [hidden] attribute; remove it once a search starts
+      - #loading      -> show while the request is in flight
+      - #error        -> show on failure; set text on #errorMessage
+      - #forecast     -> show on success; fill in the fields below
+      - #result also accepts a modifier class of "result--rain" or "result--clear"
+        to recolor the accent (see style.css)
+    -->
+
+    <form id="weatherForm" class="search" autocomplete="off">
+      <label for="postcodeInput" class="sr-only">Postcode</label>
+      <input
+        type="text"
+        id="postcodeInput"
+        name="postcode"
+        class="search__input"
+        placeholder="e.g. 2000"
+        inputmode="numeric"
+        pattern="[0-9]{4}"
+        maxlength="4"
+        required
+      />
+      <button type="submit" class="search__button">Check forecast</button>
+    </form>
+
+    <section id="result" class="result" aria-live="polite" hidden>
+
+      <!-- Loading state -->
+      <div id="loading" class="result__state result__state--loading" hidden>
+        <div class="loader" aria-hidden="true">
+          <span class="loader__ring"></span>
+        </div>
+        <p class="result__status">Checking the sky&hellip;</p>
+      </div>
+
+      <!-- Error state -->
+      <div id="error" class="result__state result__state--error" hidden>
+        <p class="result__status" id="errorMessage">
+          We couldn't reach the forecast service. Try again in a moment.
+        </p>
+      </div>
+
+      <!-- Success state -->
+      <div id="forecast" class="result__state result__state--forecast" hidden>
+        <p class="forecast__location">Tomorrow in <span id="resultCity">&mdash;</span></p>
+
+        <svg id="iconRain" class="forecast__icon" hidden viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <path d="M18 34a12 12 0 0 1 23-5 9 9 0 0 1 1 18H18a9 9 0 0 1 0-13Z" />
+          <line x1="22" y1="50" x2="19" y2="58" />
+          <line x1="32" y1="50" x2="29" y2="58" />
+          <line x1="42" y1="50" x2="39" y2="58" />
+        </svg>
+
+        <svg id="iconClear" class="forecast__icon" hidden viewBox="0 0 64 64" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
+          <circle cx="32" cy="32" r="11" />
+          <line x1="32" y1="8" x2="32" y2="14" />
+          <line x1="32" y1="50" x2="32" y2="56" />
+          <line x1="8" y1="32" x2="14" y2="32" />
+          <line x1="50" y1="32" x2="56" y2="32" />
+          <line x1="14.6" y1="14.6" x2="18.8" y2="18.8" />
+          <line x1="45.2" y1="45.2" x2="49.4" y2="49.4" />
+          <line x1="14.6" y1="49.4" x2="18.8" y2="45.2" />
+          <line x1="45.2" y1="18.8" x2="49.4" y2="14.6" />
+        </svg>
+
+        <p class="forecast__verdict" id="forecastVerdict">&mdash;</p>
+
+        <p class="forecast__hero">
+          <span class="forecast__hero-value" id="probabilityValue">0</span><span class="forecast__hero-unit">%</span>
+          <span class="forecast__hero-label">chance of rain</span>
+        </p>
+
+        <dl class="forecast__stats">
+          <div class="forecast__stat">
+            <dt>High</dt>
+            <dd id="tempHigh">&mdash;</dd>
+          </div>
+          <div class="forecast__stat">
+            <dt>Low</dt>
+            <dd id="tempLow">&mdash;</dd>
+          </div>
+          <div class="forecast__stat">
+            <dt>Wind</dt>
+            <dd id="windSpeed">&mdash;</dd>
+          </div>
+        </dl>
+      </div>
+
+    </section>
+
+    <footer class="app__footer">
+      <p>Forecast data from <a href="https://openweathermap.org/" target="_blank" rel="noopener noreferrer">OpenWeatherMap</a></p>
+    </footer>
+  </main>
+
+  <script src="script.js" defer></script>
+</body>
+</html>
